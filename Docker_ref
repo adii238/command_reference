@@ -1,0 +1,5 @@
+			Docker Commands
+# docker ps 
+# docker info    (checks how many containers are running and stopped)
+# systemctl status docker 
+# systemctl stop docker OR systemctl start docker 		

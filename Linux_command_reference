@@ -1,0 +1,247 @@
+Linux Command Reference with useful switches
+=============================================
+
+########################################
+########################################
+				CPU commands
+				
+# top
+# top    (hit c to sort with CPU usage) 
+# cat /proc/cpuinfo
+# lscpu               (number of processors, core etc. can be found)
+# numactl --hardware  (Check if this is an SMP or NUMA based system)  
+# numastat
+# /proc/interrupts	  (file lists the number of interrupts sent to each processor from a particular I/O device. 
+It displays the interrupt request (IRQ) number, the number of that type of interrupt request handled by each processor
+in the system, the type of interrupt sent, and a comma-separated list of devices that respond to the listed interrupt request.)
+# mpstat               (Part of systat package) 
+
+########################################
+########################################
+            Memory
+			
+# free -m  (in MB)
+# free -g   (in Gb)
+# top (with m)    (Sort by memory usage)
+# vmstat 
+# vmstat -s       (displays a table of various event counters and memory statistics)
+# valgrind --tool=memcheck application    (To run memcheck on an application)
+
+########################################
+########################################
+			Disk
+			
+# fdisk -l
+# df -h 
+# lsblk
+# blkid 
+
+########################################
+########################################
+			Networking
+			
+# ifconfig -a
+# ethtool eth0    (view interface details)
+# netstat -tulnp 
+
+# /etc/sysconfig/network-scripts/ifcfg-eth0 
+# lsof -i:8080      (check whether any service is listening on port 8080)
+
+# tcpdump -i eth0 
+# tcpdump -i eth0 -s 0 -w /tmp/hostname-$(date +"%Y-%m-%d-%H-%M-%S").pcap   
+# strace -fvttTyyx -s 4096 -o /hostname001_strace.txt nc -v login.salesforce.com 443
+
+# nmap 
+
+# ethtool -g eth1                   (Check ring buffer size on rhel5 and 6 for a specific NIC) 
+Ring parameters for eth1:
+Pre-set maximums:
+RX:             4096
+RX Mini:        0
+RX Jumbo:       2048
+TX:             4096
+Current hardware settings:
+RX:             256
+RX Mini:        0
+RX Jumbo:       256
+TX:             512
+
+- Read up on network tunable parameters on https://wwwx.cs.unc.edu/~sparkst/howto/network_tuning.php #####
+
+# sysctl -p | grep mem
+This will display your current buffer settings. Save These! You may want to roll-back these changes
+
+# sysctl -w net.core.rmem_max=8388608   OR # sysctl net.core.rmem_max   (To view the value)
+This sets the max OS receive buffer size for all types of connections.
+-w changes the value in runtime.
+
+# sysctl -w net.core.wmem_max=8388608 
+This sets the max OS send buffer size for all types of connections.
+-w changes the value in runtime.
+
+# sysctl -w net.core.rmem_default=65536 
+This sets the default OS receive buffer size for all types of connections.
+-w changes the value in runtime.
+
+# sysctl -w net.core.wmem_default=65536 
+This sets the default OS send buffer size for all types of connections.
+-w changes the value in runtime.
+
+# sysctl -w net.ipv4.tcp_mem='8388608 8388608 8388608' 
+TCP Autotuning setting. "The tcp_mem variable defines how the TCP stack should behave when it comes to memory usage. 
+... The first value specified in the tcp_mem variable tells the kernel the low threshold. Below this point, the TCP stack 
+do not bother at all about putting any pressure on the memory usage by different TCP sockets. ... 
+The second value tells the kernel at which point to start pressuring memory usage down. ... 
+The final value tells the kernel how many memory pages it may use maximally. 
+If this value is reached, TCP streams and packets start getting dropped until we reach a lower memory usage again. 
+This value includes all TCP sockets currently in use." 
+-w changes the value in runtime.
+
+# sysctl -w net.ipv4.tcp_rmem='4096 87380 8388608' 
+TCP Autotuning setting. "The first value tells the kernel the minimum receive buffer for each TCP connection, 
+and this buffer is always allocated to a TCP socket, even under high pressure on the system. ... 
+The second value specified tells the kernel the default receive buffer allocated for each TCP socket. 
+This value overrides the /proc/sys/net/core/rmem_default value used by other protocols. ... 
+The third and last value specified in this variable specifies the maximum receive buffer that can be allocated for a TCP socket." 
+
+# sysctl -w net.ipv4.tcp_wmem='4096 65536 8388608' 
+TCP Autotuning setting. "This variable takes 3 different values which holds information on how much 
+TCP sendbuffer memory space each TCP socket has to use. Every TCP socket has this much buffer space to use 
+before the buffer is filled up. Each of the three values are used under different conditions. ... 
+The first value in this variable tells the minimum TCP send buffer space available for a single TCP socket. 
+... The second value in the variable tells us the default buffer space allowed for a single TCP socket to use. 
+... The third value tells the kernel the maximum TCP send buffer space." 
+
+# sysctl -w net.ipv4.route.flush=1
+This will enusre that immediatly subsequent connections use these values. 
+
+########################################
+########################################
+		System/Hardware Info
+		
+# dmidecode -t 1 
+
+########################################
+########################################
+        Kernel info
+		
+# uname -r 
+# rpm -qa | grep kernel       (List installed kernels on system)
+# yum list kernel
+# lsmod                       (Listing currently loaded modules)
+# modinfo <module_name>       (Display detailed information about a kernel module)
+# modprobe <module)name>      (To load a kernel module)
+# modprobe -r <module_name>   (Unload a kernel module)
+
+########################################
+########################################
+		YUM commands 
+		
+# yum whatprovides <package name>
+# yum check-update    		(Check for any updates)
+# yum update     			(Prompts to hit yes/no)
+# yum update --security		(Update only security related packages)
+# yum update -y   			(Updates all server packages on system)
+# yum update -y --enablerepo="rhel-?-server*-rpms" --disableexcludes=all
+# yum history 
+# yum history list all 
+# yum history undo <id>      (Rollback a previous yum command)
+# yum history redo <id>		 (Repeat a particular transaction)
+# yum history info <id>      (Examine a particular transaction in more detail. Very useful in determining what packages were modified and by who)
+# yum repolist all 			 (Shows list of all repositories whether they are enabled or disabled)
+# yum search gvim emacs      (Searches for gvim and emacs package) 
+# yum info vim*				 (Gives info such as available in which repo, package version, architecture etc)
+# yum groups summary		 (The summary option is used to view the number of installed groups, available groups, available environment groups, and both 		installed and available language groups)
+# yum group list 
+# yum-config-manager         (To display the current values of global yum options i.e, the options specified in the [main] section of the /etc/yum.conf file) 
+# yum-config-manager --add-repo <repository_url>
+# /etc/yum.conf
+# /etc/yum.repos.d/<name>.repo 
+# yum localinstall <package-name.rpm>    (when you install an rpm locally)
+# yum updateinfo list available   (list the updates that are available)
+# yum update --advisory=RHBA-2016:0694    (After confirming use this to apply the specific advisory)
+# yum list-sec               (To display if there are any security patches to be applied) 
+
+
+########################################
+########################################
+  Subscription-manager commands
+   
+# subscription-manager register --org="MyCompany" --activationkey="DEV_RHEL7_x86_64_NONPROD_AK"      
+# subscription-manager register --org="MyCompany" --activationkey="PROD_RHEL7_x86_64_PROD_AK" --force
+# subscription-manager list -–available 
+# subscription-manager list --consumed
+# subscription-manager attach --auto           (This can resolve the subscription not available issue. Run in client) 
+# subscription-manager repos --list
+# subscription-manager repos                                                   (View all repos and their repo ids)
+# subscription-manager repos --enable rhel-7-server-supplementary-rpms         (Enable a disabled repo)
+
+########################################
+########################################
+         Satellite 6.3 commands
+		 
+# yum info satellite			To check the version of Satellite 6
+# katello-service list			View the list of these services 
+# katello-service status		To see the status of running services
+# katello-service stop			To stop all Satellite services
+# katello-service start			To start all Satellite services
+# katello-service restart		To restart all Satellite services
+# hammer ping                   To check the status of core Satellite services 
+# foreman -debug                To gather debug info for troubleshooting 
+
+#########################################
+#########################################
+        RPM commands
+		
+# rpm -qa |grep katello                                                                    (Check if katello installed)
+# rpm -Uvh http://mycompany.satellite.com/pub/katello-ca-consumer-latest.noarch.rpm      (install katello)		
+# rpm -e katello-ca-consumer-mycompany.satellite.com-1.0-13.noarch                       (uninstall katello)
+
+#########################################
+#########################################
+        XSOS performance monitoring
+
+xsos tool can be used to find the top 10 CPU/mem/thread-spawning
+https://access.redhat.com/discussions/469323
+
+./xsos -ay    ##to run
+###########################################
+###########################################
+			XFS Commands 
+
+# mkfs.xfs <block-device>      			To create an XFS File System
+# mkfs.xfs /dev/sdb2   
+# xfs_quota -x -c 'report -h' /home     To display a sample quota report for /home
+
+# xfs_growfs /mount/point -D size       XFS file system may be grown while mounted
+# xfs_repair /dev/device				To repair an XFS file system
+# xfs_repair -L /dev/device				The xfs_repair utility cannot repair an XFS file system with a dirty log. To clear
+										the log, mount and unmount the XFS file system. If the log is corrupt and cannot be
+										replayed, use the -L option ("force log zeroing") to clear the log.
+# xfs_freeze -f /mount/point			To suspend (that is, freeze) an XFS file system. This is done to suspend write activity to a file system.
+# xfs_freeze -u /mount/point			To unfreeze an XFS file system, this is done to resume write activity to a file system.
+# xfs_info								Prints XFS file system information
+# xfs_fsr								Used to defragment mounted XFS file systems. When invoked with no arguments, xfs_fsr
+										defragments all regular files in all mounted XFS file systems.
+# xfsdump								Backup an xfs file system
+# xfsrestore 							Restore an xfs file system 
+# xfs_admin								Label or tune a file system
+
+#############################################
+#############################################
+				LVM Commands 
+
+# lvs -v 								Display info about logical volumes along with LV UUIDs
+# dmsetup info -c						
+# pvs -a 
+# /etc/lvm/backup 						Contents of this directory useful in troubleshooting 
+# /etc/lvm/arhive 						Contents of this directory useful in troubleshooting
+# vgs -P -o +devices					Display information on failed devices, -P shows VGs that have failed 
+# lvs -P -a -o +devices					Display information on failed devices, -P shows LVs that have failed 
+
+#############################################
+#############################################
+		File Commands
+
+# file *                                Display file types in a directory path
+# hexdump -n 512 -C <file-name>         Display file contents in ascii, decimal, hexadecimal, or octal
